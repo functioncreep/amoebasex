@@ -1,6 +1,26 @@
-import controlP5.*;
-import oscP5.*;
-import netP5.*;
+import processing.core.*; 
+import processing.data.*; 
+import processing.event.*; 
+import processing.opengl.*; 
+
+import controlP5.*; 
+import oscP5.*; 
+import netP5.*; 
+
+import java.util.HashMap; 
+import java.util.ArrayList; 
+import java.io.File; 
+import java.io.BufferedReader; 
+import java.io.PrintWriter; 
+import java.io.InputStream; 
+import java.io.OutputStream; 
+import java.io.IOException; 
+
+public class amoeba_listen extends PApplet {
+
+
+
+
 
 ControlP5 cp5;
 OscP5 oscP5;
@@ -10,8 +30,8 @@ String input = "";
 // String[] history = new String[50];
 ArrayList<History> history =  new ArrayList<History>();
 
-void setup() {
-  size(500, 500);
+public void setup() {
+  
 
   PFont font = createFont("courier", 20);
 
@@ -43,7 +63,7 @@ void setup() {
   oscP5.plug(this, "pillae", "/pillae");
 }
 
-void draw() {
+public void draw() {
   background(160);
 
   // starting x and y pos for text
@@ -70,7 +90,7 @@ void draw() {
   }
 }
 
-void shiftText(String _input, boolean _self) {
+public void shiftText(String _input, boolean _self) {
   // String[] inBuf = new String[history.length];  // buffer to copy array into
   //
   // // copy history into buffer
@@ -92,7 +112,7 @@ void shiftText(String _input, boolean _self) {
 }
 
 // event handler... make specific to "input"?
-void controlEvent(ControlEvent _event) {
+public void controlEvent(ControlEvent _event) {
   if (_event.isFrom(cp5.getController("input"))) {
     shiftText(input, true);
   }
@@ -105,7 +125,7 @@ public void pillae(String _plasmid) {
 }
 
 // OSC event handler
-void oscEvent(OscMessage _message) {
+public void oscEvent(OscMessage _message) {
   // print the address pattern and the typetag of the received OscMessage
   //print("### received an osc message.");
   //print(" addrpattern: " + _message.addrPattern());
@@ -126,5 +146,15 @@ class History
   public void dump() {
     println("text: " + text);
     println("self?: " + self);
+  }
+}
+  public void settings() {  size(500, 500); }
+  static public void main(String[] passedArgs) {
+    String[] appletArgs = new String[] { "amoeba_listen" };
+    if (passedArgs != null) {
+      PApplet.main(concat(appletArgs, passedArgs));
+    } else {
+      PApplet.main(appletArgs);
+    }
   }
 }

@@ -1,6 +1,26 @@
-import controlP5.*;
-import oscP5.*;
-import netP5.*;
+import processing.core.*; 
+import processing.data.*; 
+import processing.event.*; 
+import processing.opengl.*; 
+
+import controlP5.*; 
+import oscP5.*; 
+import netP5.*; 
+
+import java.util.HashMap; 
+import java.util.ArrayList; 
+import java.io.File; 
+import java.io.BufferedReader; 
+import java.io.PrintWriter; 
+import java.io.InputStream; 
+import java.io.OutputStream; 
+import java.io.IOException; 
+
+public class amoeba extends PApplet {
+
+
+
+
 
 ControlP5 cp5;
 OscP5 oscP5;
@@ -9,8 +29,8 @@ NetAddress amoebaTwo;
 String input = "";
 String[] history = new String[50];
 
-void setup() {
-  size(500, 500);
+public void setup() {
+  
 
   PFont font = createFont("courier", 20);
 
@@ -41,7 +61,7 @@ void setup() {
   amoebaTwo = new NetAddress("127.0.0.1", 7771);
 }
 
-void draw() {
+public void draw() {
   background(160);
 
   // starting x and y pos for text
@@ -56,7 +76,7 @@ void draw() {
   }
 }
 
-void shiftText(String _input) {
+public void shiftText(String _input) {
   String[] inBuf = new String[history.length];  // buffer to copy array into
 
   // copy history into buffer
@@ -72,7 +92,7 @@ void shiftText(String _input) {
 }
 
 // event handler... make specific to "input"?
-void controlEvent(ControlEvent event) {
+public void controlEvent(ControlEvent event) {
   if (event.isFrom(cp5.getController("input"))) {
     shiftText(input);
 
@@ -82,5 +102,15 @@ void controlEvent(ControlEvent event) {
 
     // send message:
     oscP5.send(plasmid, amoebaTwo);
+  }
+}
+  public void settings() {  size(500, 500); }
+  static public void main(String[] passedArgs) {
+    String[] appletArgs = new String[] { "amoeba" };
+    if (passedArgs != null) {
+      PApplet.main(concat(appletArgs, passedArgs));
+    } else {
+      PApplet.main(appletArgs);
+    }
   }
 }
