@@ -1,3 +1,4 @@
+// TODO: add user name input
 // TODO: add node "handshake" function?
 // TODO: fix text-draw doubling issue
 
@@ -10,6 +11,7 @@ OscP5 oscP5;
 NetAddress amoebaTwo;
 
 String input = "";
+String userName = null;
 ArrayList<History> history =  new ArrayList<History>();
 
 void setup() {
@@ -49,24 +51,28 @@ void draw() {
   // starting x and y pos for text
   int posX = 5;
   int posY = 25;
-
-  // loop thru items and draw
-  for (History entry : history) {
-    if (entry.self == true) {
-      textAlign(LEFT);
-      fill(255, 255, 255);
-      text(entry.text, posX, posY);
-      // println(entry.text + " " + entry.self);
-    } else if (entry.self == false) {
-      textAlign(RIGHT);
-      fill(0, 0, 0);
-      text(entry.text, width - posX, posY);
-      // println(entry.text + " " + entry.self);
+  
+  if (userName == null) {
+    text("Enter your name:", posX, width - 55);
+  } else {
+    // loop thru items and draw
+    for (History entry : history) {
+      if (entry.self == true) {
+        textAlign(LEFT);
+        fill(255, 255, 255);
+        text(entry.text, posX, posY);
+        // println(entry.text + " " + entry.self);
+      } else if (entry.self == false) {
+        textAlign(RIGHT);
+        fill(0, 0, 0);
+        text(entry.text, width - posX, posY);
+        // println(entry.text + " " + entry.self);
+      }
+  
+      // text(history[i], posX, posY);
+      //println(history[i]);
+      posY += 30;
     }
-
-    // text(history[i], posX, posY);
-    //println(history[i]);
-    posY += 30;
   }
 }
 
@@ -94,14 +100,18 @@ void shiftText(String _input, boolean _self) {
 // event handler... make specific to "input"?
 void controlEvent(ControlEvent _event) {
   if (_event.isFrom(cp5.getController("input"))) {
-    shiftText(input, true);
-    
-    // OSC message construction:
-    OscMessage plasmid = new OscMessage("/pillae");
-    plasmid.add(input);
-
-    // send message:
-    oscP5.send(plasmid, amoebaTwo);
+    if (userName == null) {
+      userName = input;
+    } else {
+      shiftText(input, true);
+      
+      // OSC message construction:
+      OscMessage plasmid = new OscMessage("/pillae");
+      plasmid.add(input);
+  
+      // send message:
+      oscP5.send(plasmid, amoebaTwo);
+    }
   }
 }
 
