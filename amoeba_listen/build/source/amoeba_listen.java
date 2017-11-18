@@ -27,18 +27,12 @@ OscP5 oscP5;
 NetAddress amoebaOne;
 
 String input = "";
-// String[] history = new String[50];
 ArrayList<History> history =  new ArrayList<History>();
 
 public void setup() {
   
 
   PFont font = createFont("courier", 20);
-
-  // fill history with empty strings
-  // for (int i = 0; i < history.length; i++) {
-  //   history[i] = "";
-  // }
 
   cp5 = new ControlP5(this);
   int inputWidth = width;
