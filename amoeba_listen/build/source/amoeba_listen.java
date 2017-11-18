@@ -18,13 +18,16 @@ import java.io.IOException;
 
 public class amoeba_listen extends PApplet {
 
+// TODO: integrate OSC send
+// TODO: add node "handshake" function?
+
 
 
 
 
 ControlP5 cp5;
 OscP5 oscP5;
-NetAddress amoebaOne;
+NetAddress amoebaTwo;
 
 String input = "";
 ArrayList<History> history =  new ArrayList<History>();
@@ -52,6 +55,9 @@ public void setup() {
 
   // start OscP5 listening on port 7771
   oscP5 = new OscP5(this, 7771);
+
+  // address to send messages to
+  amoebaTwo = new NetAddress("127.0.0.1", 7771);
 
   // "plug" pillae message into function
   oscP5.plug(this, "pillae", "/pillae");
@@ -109,6 +115,13 @@ public void shiftText(String _input, boolean _self) {
 public void controlEvent(ControlEvent _event) {
   if (_event.isFrom(cp5.getController("input"))) {
     shiftText(input, true);
+
+    // OSC message construction:
+    OscMessage plasmid = new OscMessage("/pillae");
+    plasmid.add(input);
+
+    // send message:
+    oscP5.send(plasmid, amoebaTwo);
   }
 }
 

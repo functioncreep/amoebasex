@@ -1,5 +1,6 @@
-// TODO: integrate OSC send
+// TODO: add user name input
 // TODO: add node "handshake" function?
+// TODO: fix text-draw doubling issue
 
 import controlP5.*;
 import oscP5.*;
@@ -10,6 +11,7 @@ OscP5 oscP5;
 NetAddress amoebaTwo;
 
 String input = "";
+String myName = null;
 ArrayList<History> history =  new ArrayList<History>();
 
 void setup() {
@@ -35,7 +37,7 @@ void setup() {
 
   // start OscP5 listening on port 7771
   oscP5 = new OscP5(this, 7771);
-  
+
   // address to send messages to
   amoebaTwo = new NetAddress("127.0.0.1", 7771);
 
@@ -50,40 +52,31 @@ void draw() {
   int posX = 5;
   int posY = 25;
 
-  // loop thru items and draw
-  for (History entry : history) {
-    if (entry.self == true) {
-      textAlign(LEFT);
-      fill(255, 255, 255);
-      text(entry.text, posX, posY);
-      // println(entry.text + " " + entry.self);
-    } else if (entry.self == false) {
-      textAlign(RIGHT);
-      fill(0, 0, 0);
-      text(entry.text, width - posX, posY);
-      // println(entry.text + " " + entry.self);
-    }
+  if (myName == null) {
+    text("Enter your name:", posX, width - 55);
+  } else {
+    // loop thru items and draw
+    for (History entry : history) {
+      if (entry.self == true) {
+        textAlign(LEFT);
+        fill(255, 255, 255);
+        text(entry.text, posX, posY);
+        // println(entry.text + " " + entry.self);
+      } else if (entry.self == false) {
+        textAlign(RIGHT);
+        fill(0, 0, 0);
+        text(entry.text, width - posX, posY);
+        // println(entry.text + " " + entry.self);
+      }
 
-    // text(history[i], posX, posY);
-    //println(history[i]);
-    posY += 30;
+      // text(history[i], posX, posY);
+      //println(history[i]);
+      posY += 30;
+    }
   }
 }
 
-void shiftText(String _input, boolean _self) {
-  // String[] inBuf = new String[history.length];  // buffer to copy array into
-  //
-  // // copy history into buffer
-  // arrayCopy(history, inBuf);
-  //
-  // // right shift history by one
-  // for (int i = 0; i < history.length - 1; i++) {
-  //   history[i + 1] = inBuf[i];
-  // }
-  //
-  // // add input to first object in history
-  // history[0] = _input;
-
+void addText(String _input, boolean _self) {
   history.add(0, new History(_input, _self));
 
   if (history.size() >= 50) {
@@ -94,21 +87,31 @@ void shiftText(String _input, boolean _self) {
 // event handler... make specific to "input"?
 void controlEvent(ControlEvent _event) {
   if (_event.isFrom(cp5.getController("input"))) {
-    shiftText(input, true);
-    
-    // OSC message construction:
-    OscMessage plasmid = new OscMessage("/pillae");
-    plasmid.add(input);
-
-    // send message:
-    oscP5.send(plasmid, amoebaTwo);
+    // if username hasn't been set, set
+    if (myName == null) {
+      myName = input;
+    } else {
+      addText(input, true);
+      // OSC message construction:
+      OscMessage plasmid = new OscMessage("/pillae");
+      // attach username then message content
+      plasmid.add(myName);
+      plasmid.add(input);
+      // send message:
+      oscP5.send(plasmid, amoebaTwo);
+    }
   }
 }
 
 // pillae function
-public void pillae(String _plasmid) {
-  println("Amoeba One would like to conjugate. Do you consent? (plasmid: " + _plasmid + ")");
-  shiftText(_plasmid, false);
+public void pillae(String _user, String _plasmid) {
+  // check if received message comes from self (there must be a better way to implement...)
+  if (_user.equals(myName)) {
+    println("me: " + _plasmid);
+  } else {
+    println(_user + ": " + _plasmid);
+    addText(_plasmid, false);
+  }
 }
 
 // OSC event handler
